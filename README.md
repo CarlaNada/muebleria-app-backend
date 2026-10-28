@@ -18,7 +18,7 @@ Repositorio del backend para la Evaluación Final Integradora 2026 de Ingenierí
 - Docker para ejecutar el backend.
 - CORS y autenticación para permitir la futura integración con Next.js.
 
-La base de datos y las versiones concretas de las dependencias se definirán al iniciar la implementación.
+Para el desarrollo inicial se usa SQLite. Las dependencias están declaradas en pyproject.toml y uv.lock.
 
 # Alcance previsto
 
@@ -38,3 +38,38 @@ El flujo de ramas, la convención de commits y las reglas para Pull Requests est
 
 # Puesta en marcha
 
+### Requisitos
+
+- Python 3.12
+- `uv`
+- Git
+
+### Clonar el repositorio
+
+```bash
+git clone https://github.com/CarlaNada/muebleria-app-backend.git
+cd muebleria-app-backend
+```
+
+### Instalar las dependencias
+
+```bash
+uv sync
+```
+
+### Preparar la base de datos
+
+```bash
+uv run python manage.py migrate
+```
+
+### Iniciar el servidor
+
+```bash
+uv run python manage.py runserver
+```
+
+Abrí `http://127.0.0.1:8000/` en el navegador. Para detener el servidor, presioná `Ctrl+C`.
+```
+
+`uv sync` instala las dependencias declaradas en el proyecto; `migrate` prepara la base de datos y `runserver` inicia el servidor de desarrollo.
