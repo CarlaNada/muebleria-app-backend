@@ -30,22 +30,26 @@ class MaterialSerializer(serializers.ModelSerializer):
 
 
 class ProductoSerializer(serializers.ModelSerializer):
-    categoria = CategoriaSerializer(read_only=True)
-    categoria_id = serializers.PrimaryKeyRelatedField(
-        source='categoria',
-        queryset=Categoria.objects.all(),
-        write_only=True,
+    materiales = serializers.PrimaryKeyRelatedField(
+    queryset=Material.objects.all(),
+    many=True,
+    required=False,
     )
 
-    materiales = MaterialSerializer(many=True, read_only=True)
-    materiales_ids = serializers.PrimaryKeyRelatedField(
-        source='materiales',
-        queryset=Material.objects.all(),
-        many=True,
-        required=False,
-        write_only=True,
-    )
+    def create(self, validated_data):
+        materiales = validated_data.pop('materiales', [])
+        producto = Producto.objects.create(**validated_data)
+        producto.materiales.set(materiales)
+        return producto
 
+    def update(self, instance, validated_data):
+        materiales = validated_data.pop('materiales', None)
+        producto = super().update(instance, validated_data)
+
+        if materiales is not None:
+            producto.materiales.set(materiales)
+
+        return producto
     class Meta:
         model = Producto
         fields = (
@@ -53,12 +57,11 @@ class ProductoSerializer(serializers.ModelSerializer):
             'nombre',
             'descripcion',
             'categoria',
-            'categoria_id',
             'materiales',
-            'materiales_ids',
             'precio',
             'stock',
             'activo',
+            'destacado',
             'fecha_creacion',
             'fecha_actualizacion',
         )
@@ -86,5 +89,32 @@ class ProductoListaSerializer(serializers.ModelSerializer):
             'destacado',
             'fecha_creacion',
             'fecha_actualizacion',
+        )
+        read_only_fields = fields
+
+class ProductoResumenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Producto
+        fields = (
+            'id',
+            'nombre',
+            'precio',
+            'stock',
+            'activo',
+        )
+        read_only_fields = fields
+
+class CategoriaListaSerializer(serializers.ModelSerializer):
+    productos = ProductoResumenSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Categoria
+        fields = (
+            'id',
+            'nombre',
+            'descripcion',
+            'activa',
+            'fecha_creacion',
+            'productos',
         )
         read_only_fields = fields

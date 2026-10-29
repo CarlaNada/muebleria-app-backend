@@ -7,20 +7,25 @@ from rest_framework.response import Response
 from .models import Categoria, Material, Producto
 from .serializers import (
     CategoriaSerializer,
+    CategoriaListaSerializer,
     MaterialSerializer,
     ProductoListaSerializer,
     ProductoSerializer,
 )
 
-
 class CategoriaViewSet(viewsets.ModelViewSet):
-    queryset = Categoria.objects.all()
+    queryset = Categoria.objects.prefetch_related('productos')
     serializer_class = CategoriaSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
     filter_backends = (SearchFilter, OrderingFilter)
     search_fields = ('nombre', 'descripcion')
     ordering_fields = ('nombre', 'fecha_creacion')
     ordering = ('nombre',)
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return CategoriaListaSerializer
+        return CategoriaSerializer
 
 
 class MaterialViewSet(viewsets.ModelViewSet):
@@ -83,3 +88,4 @@ class ProductoViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(productos, many=True)
         return Response(serializer.data)
+
