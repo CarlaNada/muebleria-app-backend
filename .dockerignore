@@ -1,0 +1,17 @@
+# Entorno virtual
+.venv/
+
+# Git
+.git/
+
+# Variables privadas
+.env
+
+# Base de datos local
+db.sqlite3
+*.sqlite3
+
+# Archivos temporales
+__pycache__/
+*.py[cod]
+.pytest_cache/
