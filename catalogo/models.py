@@ -37,6 +37,7 @@ class Material(models.Model):
 class Producto(models.Model):
     nombre = models.CharField(max_length=150)
     descripcion = models.TextField(blank=True)
+    destacado = models.BooleanField(default=False)
     categoria = models.ForeignKey(
         Categoria,
         on_delete=models.PROTECT,
