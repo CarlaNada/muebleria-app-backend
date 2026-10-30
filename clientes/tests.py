@@ -60,3 +60,30 @@ class ClientePermisosTest(APITestCase):
         )
 
         self.assertEqual(respuesta.status_code, 404)
+
+
+
+    def test_cliente_no_puede_editar_otro_cliente(self):
+        respuesta = self.client.patch(
+            f'/api/clientes/{self.cliente2.id}/',
+            {'telefono': '3584999999'},
+            format='json'
+        )
+
+        self.assertEqual(respuesta.status_code, 404)
+
+        self.cliente2.refresh_from_db()
+        self.assertEqual(self.cliente2.telefono, '3584000002')
+
+    def test_cliente_no_puede_eliminar_direccion_ajena(self):
+        respuesta = self.client.delete(
+            f'/api/direcciones/{self.direccion2.id}/'
+        )
+
+        self.assertEqual(respuesta.status_code, 404)
+
+        self.assertTrue(
+            Direccion.objects.filter(
+                id=self.direccion2.id
+            ).exists()
+        )
