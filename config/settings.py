@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'catalogo.apps.CatalogoConfig',
     'ventas.apps.VentasConfig',
+    'clientes.apps.ClientesConfig',
+
 
     # Aplicaciones externas
     'rest_framework',
