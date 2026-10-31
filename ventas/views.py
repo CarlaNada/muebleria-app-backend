@@ -125,13 +125,26 @@ class ItemPedidoViewSet(viewsets.ModelViewSet):
         producto = serializer.validated_data.get(
             'producto', serializer.instance.producto
         )
+        cantidad = serializer.validated_data.get(
+            'cantidad', serializer.instance.cantidad
+        )
 
-        if pedido.estado != 'pendiente':
+        if serializer.instance.pedido.estado != 'pendiente' or pedido.estado != 'pendiente':
             raise ValidationError({
-                'pedido': 'No puedes modificar un pedido que no está pendiente.'
+                'pedido': 'Solo puedes modificar ítems de pedidos pendientes.'
             })
 
-        if 'producto' in serializer.validated_data:
+        if not producto.activo:
+            raise ValidationError({
+                'producto': 'El producto no está disponible.'
+            })
+
+        if cantidad > producto.stock:
+            raise ValidationError({
+                'cantidad': 'No hay suficiente stock disponible.'
+            })
+
+        if producto.pk != serializer.instance.producto_id:
             serializer.save(precio_unitario=producto.precio)
         else:
             serializer.save()

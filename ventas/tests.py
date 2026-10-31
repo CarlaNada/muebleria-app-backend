@@ -4,6 +4,10 @@ from rest_framework.test import APITestCase
 from clientes.models import Cliente
 from .models import Pedido
 
+from decimal import Decimal
+
+from catalogo.models import Categoria, Producto
+from .models import ItemPedido
 
 class PedidoPermisosTest(APITestCase):
 
@@ -52,3 +56,45 @@ class PedidoPermisosTest(APITestCase):
 
         self.pedido2.refresh_from_db()
         self.assertEqual(self.pedido2.estado, 'pendiente')
+
+class ItemPedidoStockTest(APITestCase):
+
+    def test_no_permite_cantidad_mayor_al_stock(self):
+        Usuario = get_user_model()
+
+        usuario = Usuario.objects.create_user(
+            username='admin_stock',
+            is_staff=True
+        )
+
+        cliente = Cliente.objects.create(usuario=usuario)
+        pedido = Pedido.objects.create(cliente=cliente)
+
+        categoria = Categoria.objects.create(nombre='Muebles')
+
+        producto = Producto.objects.create(
+            nombre='Mesa',
+            categoria=categoria,
+            precio=Decimal('20000.00'),
+            stock=2
+        )
+
+        item = ItemPedido.objects.create(
+            pedido=pedido,
+            producto=producto,
+            cantidad=1,
+            precio_unitario=producto.precio
+        )
+
+        self.client.force_authenticate(user=usuario)
+
+        respuesta = self.client.patch(
+            f'/api/ventas/items/{item.id}/',
+            {'cantidad': 5},
+            format='json'
+        )
+
+        self.assertEqual(respuesta.status_code, 400)
+
+        item.refresh_from_db()
+        self.assertEqual(item.cantidad, 1)
