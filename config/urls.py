@@ -45,4 +45,11 @@ urlpatterns = [
 
     # Catalogo
     path('api/catalogo/', include('catalogo.urls')),
+
+    # Clientes y direcciones
+    path('api/', include('clientes.urls')),
+
+    # Pedidos y ventas
+    path('api/ventas/', include('ventas.urls')),
+    
     ]

@@ -31,9 +31,21 @@ class MaterialSerializer(serializers.ModelSerializer):
 
 class ProductoSerializer(serializers.ModelSerializer):
     materiales = serializers.PrimaryKeyRelatedField(
-    queryset=Material.objects.all(),
-    many=True,
-    required=False,
+        queryset=Material.objects.all(),
+        many=True,
+        required=False,
+    )
+
+    categoria_nombre = serializers.CharField(
+        source='categoria.nombre',
+        read_only=True,
+    )
+
+    materiales_nombres = serializers.SlugRelatedField(
+        source='materiales',
+        many=True,
+        read_only=True,
+        slug_field='nombre',
     )
 
     def create(self, validated_data):
@@ -64,6 +76,8 @@ class ProductoSerializer(serializers.ModelSerializer):
             'destacado',
             'fecha_creacion',
             'fecha_actualizacion',
+            'categoria_nombre',
+            'materiales_nombres',
         )
         read_only_fields = (
             'id',

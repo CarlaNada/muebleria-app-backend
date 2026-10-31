@@ -1,8 +1,10 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from .permissions import IsAdminOrReadOnly
 from rest_framework.response import Response
+
+from django_filters.rest_framework import DjangoFilterBackend
 
 from .models import Categoria, Material, Producto
 from .serializers import (
@@ -16,8 +18,9 @@ from .serializers import (
 class CategoriaViewSet(viewsets.ModelViewSet):
     queryset = Categoria.objects.prefetch_related('productos')
     serializer_class = CategoriaSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-    filter_backends = (SearchFilter, OrderingFilter)
+    permission_classes = (IsAdminOrReadOnly,)
+    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
+    filterset_fields = ('activa',)
     search_fields = ('nombre', 'descripcion')
     ordering_fields = ('nombre', 'fecha_creacion')
     ordering = ('nombre',)
@@ -31,8 +34,9 @@ class CategoriaViewSet(viewsets.ModelViewSet):
 class MaterialViewSet(viewsets.ModelViewSet):
     queryset = Material.objects.all()
     serializer_class = MaterialSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-    filter_backends = (SearchFilter, OrderingFilter)
+    permission_classes = (IsAdminOrReadOnly,)
+    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
+    filterset_fields = ('activo',)
     search_fields = ('nombre', 'descripcion')
     ordering_fields = ('nombre', 'fecha_creacion')
     ordering = ('nombre',)
@@ -45,8 +49,9 @@ class ProductoViewSet(viewsets.ModelViewSet):
         .prefetch_related('materiales')
         .all()
     )
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-    filter_backends = (SearchFilter, OrderingFilter)
+    permission_classes = (IsAdminOrReadOnly,)
+    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
+    filterset_fields = ('categoria', 'activo', 'destacado')
     search_fields = (
         'nombre',
         'descripcion',
