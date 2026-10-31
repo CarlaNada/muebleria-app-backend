@@ -1,12 +1,16 @@
 from rest_framework import viewsets
 from rest_framework.exceptions import ValidationError, PermissionDenied
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status
 
 from clientes.models import Cliente
 
 from .models import Pedido, ItemPedido, Pago, Envio
 from .serializers import (
     PedidoSerializer,
+    PedidoListSerializer,
     ItemPedidoSerializer,
     PagoSerializer,
     EnvioSerializer,
@@ -14,6 +18,12 @@ from .serializers import (
 
 class PedidoViewSet(viewsets.ModelViewSet):
     serializer_class = PedidoSerializer
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return PedidoListSerializer
+
+        return PedidoSerializer
 
     def get_permissions(self):
         if self.action in ['update', 'partial_update', 'destroy']:
@@ -29,6 +39,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
             cliente__usuario=self.request.user
         )
 
+
     def perform_create(self, serializer):
         try:
             cliente = Cliente.objects.get(
@@ -40,6 +51,28 @@ class PedidoViewSet(viewsets.ModelViewSet):
             })
 
         serializer.save(cliente=cliente)
+
+    @action(detail=True, methods=['post'])
+    def cancelar(self, request, pk=None):
+        pedido = self.get_object()
+
+        if pedido.estado != 'pendiente':
+            raise ValidationError({
+                'estado': 'Solo se pueden cancelar pedidos pendientes.'
+            })
+
+        if pedido.pagos.filter(estado='aprobado').exists():
+            raise ValidationError({
+                'pedido': 'No se puede cancelar un pedido con pagos aprobados.'
+            })
+
+        pedido.estado = 'cancelado'
+        pedido.save(update_fields=['estado'])
+
+        return Response(
+            {'mensaje': 'Pedido cancelado correctamente.'},
+            status=status.HTTP_200_OK
+        )
 
 class ItemPedidoViewSet(viewsets.ModelViewSet):
     serializer_class = ItemPedidoSerializer

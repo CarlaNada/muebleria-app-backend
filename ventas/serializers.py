@@ -72,3 +72,13 @@ class EnvioSerializer(serializers.ModelSerializer):
             'fecha_envio',
             'fecha_entrega',
         ]
+
+class PedidoListSerializer(PedidoSerializer):
+    items = ItemPedidoSerializer(many=True, read_only=True)
+    pagos = PagoSerializer(many=True, read_only=True)
+
+    class Meta(PedidoSerializer.Meta):
+        fields = PedidoSerializer.Meta.fields + [
+            'items',
+            'pagos',
+        ]
