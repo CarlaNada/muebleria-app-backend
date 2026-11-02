@@ -62,6 +62,7 @@ class ProductoSerializer(serializers.ModelSerializer):
             producto.materiales.set(materiales)
 
         return producto
+    
     class Meta:
         model = Producto
         fields = (
@@ -78,6 +79,7 @@ class ProductoSerializer(serializers.ModelSerializer):
             'fecha_actualizacion',
             'categoria_nombre',
             'materiales_nombres',
+            'imagen_url',
         )
         read_only_fields = (
             'id',
@@ -103,6 +105,7 @@ class ProductoListaSerializer(serializers.ModelSerializer):
             'destacado',
             'fecha_creacion',
             'fecha_actualizacion',
+            'imagen_url',
         )
         read_only_fields = fields
 
@@ -115,6 +118,7 @@ class ProductoResumenSerializer(serializers.ModelSerializer):
             'precio',
             'stock',
             'activo',
+            'imagen_url',
         )
         read_only_fields = fields
 

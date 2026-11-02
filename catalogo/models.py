@@ -58,6 +58,11 @@ class Producto(models.Model):
     activo = models.BooleanField(default=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
+    imagen_url = models.URLField(
+        max_length=500,
+        blank=True,
+        default='',
+    )
 
     class Meta:
         ordering = ['nombre']
